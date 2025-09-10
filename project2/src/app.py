@@ -1,5 +1,6 @@
 import os
 from data_cleaning import load_data_from_file, clean_data
+from feature_engineering import load_cleaned_data, feature_engineer_data
 
 def main():
     """
@@ -32,6 +33,26 @@ def main():
         cleaned_df.to_csv(output_filepath, index=False)
         print(f"\n--- Success! ---")
         print(f"Cleaned data has been saved to: {output_filepath}")
+        
+    """
+    Main function to run the application.
+    It loads the clean data,and perform feature engineering .
+    """
+    
+    # 1. Load the data
+    df1 = load_cleaned_data()
+    
+    if df is not None:
+        # Feature Engineering data
+        feature_eng_df = feature_engineer_data(df1)
+        
+        # Featured Data Info
+        print('\n--- Feature Engineer data ---')
+        feature_eng_df.info()
+        
+        # Print the new data first few records
+        print('\n--- Feature Engineer Head ---')
+        print(feature_eng_df.head())
 
 if __name__ == "__main__":
     main()
