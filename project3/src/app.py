@@ -1,35 +1,56 @@
+"""
+This script serves as the main application entry point (app.py)
+to orchestrate the data cleaning, exploratory data analysis (EDA),
+and time series forecasting pipeline.
+"""
+
 import os
+import pandas as pd
 from data_cleaning import clean_data
 from exploratory_analysis import perform_eda
+from forecasting_ import train_and_forecast_arima
 
-# Define the absolute path to your raw data file
-DATA_PATH = os.path.join("D:\\Niraj\\OneDrive\\Desktop\\internship\\project3", "GME_stock.csv")
-
-# Define the path where the cleaned data will be saved
+# Define the absolute paths for the input and output files
+RAW_DATA_PATH = os.path.join("D:\\Niraj\\OneDrive\\Desktop\\internship\\project3", "GME_stock.csv")
 CLEANED_DATA_PATH = os.path.join("D:\\Niraj\\OneDrive\\Desktop\\internship\\project3\\src", "cleaned_dataSP.csv")
+FORECAST_RESULTS_PATH = os.path.join("D:\\Niraj\\OneDrive\\Desktop\\internship\\project3\\src", "forecast_results.csv")
 
 if __name__ == "__main__":
-    print("Starting the financial analysis pipeline...")
+    print("--- Starting the financial analysis pipeline ---")
 
     # Step 1: Data Cleaning
-    print("\n--- Step 1: Starting data cleaning process ---")
-    cleaned_df = clean_data(DATA_PATH)
+    print("\nStarting data cleaning process...")
+    cleaned_df = clean_data(RAW_DATA_PATH)
 
     if cleaned_df is not None:
-        print("\nData cleaning was successful!")
+        print("Data cleaning successful!")
         
-        # Step 2: Save the cleaned DataFrame
+        # Save the cleaned DataFrame
         try:
             cleaned_df.to_csv(CLEANED_DATA_PATH)
-            print(f"\nSuccessfully saved the cleaned data to {CLEANED_DATA_PATH}")
+            print(f"Successfully saved cleaned data to {CLEANED_DATA_PATH}")
             
-            # Step 3: Exploratory Data Analysis (EDA)
-            print("\n--- Step 2: Starting Exploratory Data Analysis (EDA) ---")
+            # Step 2: Exploratory Data Analysis (EDA)
+            print("\nStarting Exploratory Data Analysis (EDA)...")
             perform_eda(CLEANED_DATA_PATH)
-            print("\nFinancial analysis pipeline completed successfully.")
+            
+            # Step 3: Forecasting
+            print("\nStarting time series forecasting...")
+            fitted_model, forecast_result = train_and_forecast_arima(CLEANED_DATA_PATH)
+            
+            if forecast_result is not None:
+                # Save the forecast results to a CSV file
+                try:
+                    forecast_df = forecast_result.summary_frame()
+                    forecast_df.to_csv(FORECAST_RESULTS_PATH)
+                    print(f"Successfully saved forecast results to {FORECAST_RESULTS_PATH}")
+                except Exception as e:
+                    print(f"An error occurred while saving forecast results: {e}")
+            
+            print("\n--- Financial analysis pipeline completed successfully ---")
 
         except Exception as e:
-            print(f"\nAn error occurred while saving the file: {e}")
+            print(f"\nAn error occurred: {e}")
 
     else:
-        print("\nData cleaning failed. EDA process will not run.")
+        print("\nData cleaning failed. Subsequent steps will not run.")
